@@ -28,7 +28,7 @@ function preload()
   // load in heart image
   heart = loadImage('heart.png');
 
-  nomnomSound = loadSound('duckduck.mp3');
+  nomnomSound = loadSound('CimGameMusic.mp3');
   ouchSound = loadSound('OUCH.wav');
   tictoc = loadSound('ticktoc.wav');
 
@@ -37,7 +37,7 @@ function preload()
 
 function setup() {
 
-  nomnomSound.setVolume(0.4);
+  nomnomSound.setVolume(0.2);
   nomnomSound.play();
 
   score = 0;
