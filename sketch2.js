@@ -37,9 +37,8 @@ function preload()
 
 function setup() {
 
-  nomnomSound.setVolume(0.2);
-  nomnomSound.play();
-
+  // default lives and score values
+  lives = 3;
   score = 0;
 
   createCanvas(windowWidth,windowHeight);
@@ -59,6 +58,12 @@ function setup() {
   ghost.addAnimation("moving", "assets/ghost_walk0005.png", "assets/ghost_walk0008.png");
   ghost.addAnimation("spinning", "assets/ghost_spin0004.png", "assets/ghost_spin0006.png");
 
+  // play starting sound
+  nomnomSound.setVolume(0.2);
+  // nomnomSound.play();
+
+  startGame();
+
 }
 
 function keyTyped() {
@@ -67,191 +72,241 @@ function keyTyped() {
   }
 }
 
-function keyReleased() {
-  if (key !== 'p') {
+function draw() {
+
+  var r = random(77);
+  background(203, 81, 64);
+
+  if(gameStarted == true)
+  {
+
+    // //if mouse is to the left
+
+    ghost.position.x = mouseX-10;
+
+    // display score
+    fill(255);
+    noStroke();
+    textSize(24);
+    text("Score: " + score, 30, 50);
+
+    // display number of lives
+    switch(lives)
+    {
+     case 3:
+       image(heart, 1100, 30);
+       image(heart, 1140, 30);
+       image(heart, 1180, 30);
+     break;
+     case 2:
+       image(heart, 1140, 30);
+       image(heart, 1180, 30);
+     break;
+     case 1:
+      image(heart, 1180, 30);
+     break;
+    }
+
+    if(mouseX < (windowWidth/2) - 10) {
+     ghost.changeAnimation("moving");
+     //flip horizontally
+     ghost.mirrorX(-1);
+     //negative x velocity: move left
+     // ghost.velocity.x = - 2;
+    }
+    else if(mouseX > (windowWidth/2) + 10) {
+     ghost.changeAnimation("moving");
+     //unflip
+     ghost.mirrorX(1);
+     // ghost.velocity.x = 2;
+    }
+    else {
+     //if close to the mouse, don't move
+     ghost.changeAnimation("floating");
+     ghost.velocity.x = 0;
+    }
+
+    if(mouseIsPressed) {
+     //the rotation is not part of the spinning animation
+     ghost.rotation -= 10;
+     ghost.position.y = ghost.position.y - 10;
+     ghost.changeAnimation("spinning");
+    }
+    else{
+     ghost.rotation = 0;
+     ghost.changeAnimation("moving");
+     ghost.position.y = mouseY;
+    }
+
+    //draw the sprite
+    drawSprites();
+
+    // random ghost hatching
+    var ghostHatch = Math.ceil(random(50));
+    if(ghostHatch == 1)
+    {
+     ghosts.push(new Ghost());
+    }
+
+    // random dot hatching
+    var dotHatch = Math.ceil(random(25));
+    if(dotHatch == 1)
+    {
+     dots.push(new Dot());
+    }
+
+    // random pacman hatching
+    var pacmanHatch = Math.ceil(random(350));
+    if(pacmanHatch == 1)
+    {
+     pacmans.push(new Pacman());
+    }
+
+    // loop through each ghost
+    for (var i=0; i<ghosts.length; i++)
+    {
+     // display ghost
+     ghosts[i].display();
+
+     // check if ghost reaches bottom of the screen
+     if(ghosts[i].ypos > 500)
+     {
+       // remove ghost
+       ghosts.splice(i, 1);
+
+     } else {
+         // check if pacman is touching ghost
+         var d1 = dist(ghosts[i].xpos, ghosts[i].ypos, ghost.position.x, ghost.position.y);
+         if(d1 < 50)
+         {
+           ouchSound.play();
+
+           // decrease lives by one
+          lives --;
+
+           // remove ghost
+           ghosts.splice(i, 1);
+           ghost.scale += 1;
+           if(ghost.scale < 0){
+             ghost.scale = 0.5;
+           } else {
+             ghost.scale += 1;
+           }
+         }
+       }
+    }
+
+    // loop through each dot
+    for (var j=0; j<dots.length; j++)
+    {
+     // display dots
+     dots[j].display();
+
+     if(pacmanTouched > 0){
+       dots[j].ypos = dots[j].ypos - 2;
+
+       setTimeout(
+         function(){
+           dots[j].ypos = 4;
+           pacmanTouched = 0;
+         }, 3500);
+     }
+
+     // check if dot reaches bottom of screen
+     if(dots[j].ypos > windowHeight)
+     {
+       // remove dot
+       dots.splice(j, 1);
+
+     } else {
+
+       console.log(pacmanTouched);
+
+       //if cim touched dot
+       var d2 = dist(dots[j].xpos, dots[j].ypos, ghost.position.x, ghost.position.y);
+       if(d2 < 25)
+       {
+         // remove dot
+         dots.splice(j, 1);
+
+         // increase score by one or 2
+
+         if(pacmanTouched > 0){
+           // increase score by 2
+           score += 5;
+         } else if (pacmanTouched === 0) {
+           score++;
+         }
+       }
+     }
+    }
+
+    // loop through each pacman
+    for (var k=0; k<pacmans.length; k++)
+    {
+     // display ghost
+     pacmans[k].display();
+
+     // check if ghost reaches bottom of the screen
+     if(pacmans[k].ypos > 500)
+     {
+       // remove ghost
+       pacmans.splice(k, 1);
+
+     } else {
+       // check if pacman is touching ghost
+       var d3 = dist(pacmans[k].xpos, pacmans[k].ypos, ghost.position.x, ghost.position.y);
+       if(d3 < 25)
+       {
+         tictoc.play();
+         // remove ghost
+         pacmans.splice(k, 1);
+         pacmanTouched += 1;
+
+         ghost.scale -= 1;
+         if(ghost.scale === 0 || ghost.scale < 0){
+           ghost.scale = 1;
+         } else {
+           ghost.scale -= 1;
+         }
+
+       }
+     }
+    }
+    // check for game over
+    if(lives <= 0)
+    {
+      // reset lives and score
+      lives = 3;
+      score = 0;
+
+
+      // reset all
+      ghosts = [];
+      dots = [];
+      pacmans = [];
+      pacmanTouched = 0;
+      ghost.scale = 0.5;
+
+      // set gameStarted to false
+      gameStarted = false;
+
+
+      nomnomSound.stop();
+
+    }
+
+  } else {
+    startGame();
     nomnomSound.play();
+
   }
+
 }
 
-function draw() {
-   var r = random(77);
-   background(203, 81, 64);
-  // colorMode(HSB, 100, 100, 100, 100);
-
-  // //if mouse is to the left
-
-  ghost.position.x = mouseX-10;
-
-  // display score
-  fill(255);
-  noStroke();
-  textSize(24);
-  text("Score: " + score, 30, 50);
-
-
-  if(mouseX < (windowWidth/2) - 10) {
-    ghost.changeAnimation("moving");
-    //flip horizontally
-    ghost.mirrorX(-1);
-    //negative x velocity: move left
-    // ghost.velocity.x = - 2;
-  }
-  else if(mouseX > (windowWidth/2) + 10) {
-    ghost.changeAnimation("moving");
-    //unflip
-    ghost.mirrorX(1);
-    // ghost.velocity.x = 2;
-  }
-  else {
-    //if close to the mouse, don't move
-    ghost.changeAnimation("floating");
-    ghost.velocity.x = 0;
-  }
-
-  if(mouseIsPressed) {
-    //the rotation is not part of the spinning animation
-    ghost.rotation -= 10;
-    ghost.position.y = ghost.position.y - 10;
-    ghost.changeAnimation("spinning");
-  }
-  else{
-    ghost.rotation = 0;
-    ghost.changeAnimation("moving");
-    ghost.position.y = mouseY;
-  }
-
-  //draw the sprite
-  drawSprites();
-
-  // random ghost hatching
-  var ghostHatch = Math.ceil(random(50));
-  if(ghostHatch == 1)
-  {
-    ghosts.push(new Ghost());
-  }
-
-  // random dot hatching
-  var dotHatch = Math.ceil(random(25));
-  if(dotHatch == 1)
-  {
-    dots.push(new Dot());
-  }
-
-  // random pacman hatching
-  var pacmanHatch = Math.ceil(random(350));
-  if(pacmanHatch == 1)
-  {
-    pacmans.push(new Pacman());
-  }
-
-  // loop through each ghost
-  for (var i=0; i<ghosts.length; i++)
-  {
-    // display ghost
-    ghosts[i].display();
-
-    // check if ghost reaches bottom of the screen
-    if(ghosts[i].ypos > 500)
-    {
-      // remove ghost
-      ghosts.splice(i, 1);
-
-    } else {
-        // check if pacman is touching ghost
-        var d1 = dist(ghosts[i].xpos, ghosts[i].ypos, ghost.position.x, ghost.position.y);
-        if(d1 < 50)
-        {
-          ouchSound.play();
-          // remove ghost
-          ghosts.splice(i, 1);
-          ghost.scale += 1;
-          if(ghost.scale < 0){
-            ghost.scale = 0.5;
-          } else {
-            ghost.scale += 1;
-          }
-        }
-      }
-  }
-
-  // loop through each dot
-  for (var j=0; j<dots.length; j++)
-  {
-    // display dots
-    dots[j].display();
-
-    if(pacmanTouched > 0){
-      dots[j].ypos = dots[j].ypos - 2;
-
-      setTimeout(
-        function(){
-          dots[j].ypos = 4;
-          pacmanTouched = 0;
-        }, 3500);
-    }
-
-    // check if dot reaches bottom of screen
-    if(dots[j].ypos > windowHeight)
-    {
-      // remove dot
-      dots.splice(j, 1);
-
-    } else {
-
-      console.log(pacmanTouched);
-
-      //if cim touched dot
-      var d2 = dist(dots[j].xpos, dots[j].ypos, ghost.position.x, ghost.position.y);
-      if(d2 < 25)
-      {
-        // remove dot
-        dots.splice(j, 1);
-
-        // increase score by one or 2
-
-        if(pacmanTouched > 0){
-          // increase score by 2
-          score += 5;
-        } else if (pacmanTouched === 0) {
-          score++;
-        }
-      }
-    }
-  }
-
-  // loop through each pacman
-  for (var k=0; k<pacmans.length; k++)
-  {
-    // display ghost
-    pacmans[k].display();
-
-    // check if ghost reaches bottom of the screen
-    if(pacmans[k].ypos > 500)
-    {
-      // remove ghost
-      pacmans.splice(k, 1);
-
-    } else {
-      // check if pacman is touching ghost
-      var d3 = dist(pacmans[k].xpos, pacmans[k].ypos, ghost.position.x, ghost.position.y);
-      if(d3 < 25)
-      {
-        tictoc.play();
-        // remove ghost
-        pacmans.splice(k, 1);
-        pacmanTouched += 1;
-
-        ghost.scale -= 1;
-        if(ghost.scale === 0 || ghost.scale < 0){
-          ghost.scale = 1;
-        } else {
-          ghost.scale -= 1;
-        }
-        console.log("Ghost scale: " + ghost.scale);
-
-      }
-    }
-  }
+function startGame(){
+  // change gameStarted variable
+  gameStarted = true;
 }
 
 function Pacman()
