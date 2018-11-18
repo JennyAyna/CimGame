@@ -24,23 +24,34 @@
   margin: 10px 0 0 10px;
   white-space: nowrap;
   overflow: hidden;
-  width: 43em;
-  animation: type 4s steps(60, end);
+  width: 47.5em;
+  animation: type 4s steps(105, end);
 }
 
 p:nth-child(2){
-  animation: type2 7s steps(60, end);
+  animation: type2 7s steps(105, end);
   width: 56em;
 }
 
 p:nth-child(3){
-  animation: type2 13s steps(90, end);
+  animation: type2 13s steps(105, end);
   width: 50em;
 }
 
 p:nth-child(4){
-  animation: type2 26s steps(60, end);
-  width: 50em;
+  animation: type3 25s steps(150, end);
+  width: 55em;
+}
+
+p:nth-child(5){
+  animation: type 5s steps(150, end);
+  animation-delay: 10s;
+  width: 0;
+}
+
+p:nth-child(6){
+  animation: type3 60s steps(60, end);
+  width: 63em;
   border-bottom: solid 1px lime;
 }
 
@@ -55,11 +66,18 @@ span{
 
 @keyframes type{
   from { width: 0; }
+  to { width : 100%}
 }
 
 @keyframes type2{
   0%{ width: 0; }
-  53%{width: 0;}
+  50%{width: 0;}
+}
+
+@keyframes type3{
+  0%{ width: 0; }
+  50%{width: 0;}
+  100% { width:  100%}
 }
 
 ::selection{
@@ -77,10 +95,10 @@ span{
 <body>
 
   <div class="story">
-    <p>Il était une fois, une carte Cim se baladait dans le royaume de Pacman,</p>
+    <p>Il était une fois, une carte Cim fantôme se baladait dans le royaume de Pacman,</p>
     <p>lui aussi voulait goûter à ce délice si populaire à l'époque, et que son père lui interdisait</p>
-    <p> formellement, à cause du danger extrême que connaissait cet acte pour tout fantôme.</p>
-    <p><a href="theGame.html">Aidez le à survivre en cliquant ici !</a></p>
+    <p> formellement, à cause du danger extrême que connaissait cet acte pour tout fantôme. </p>
+    <p><a href="theGame.html">Aidez le à survivre ! Aidez le à manger les boules de neiges et les fromages tout en évitant les monstres fantômes en cliquant ici !</a></p>
 
 
   </div>

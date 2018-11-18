@@ -3,7 +3,8 @@ var dots = [];
 var ghosts = [];
 var pacmans = [];
 var pacmanTouched = 0;
-var score;
+var score, bestScore;
+var buttonPlay;
 
 var ghostRed, ghostGreen, ghostBlue, ghostOrange;
 var pacmanLeft1, pacmanLeft2, pacmanLeft3, pacmanRight1, pacmanRight2, pacmanRight3;
@@ -32,7 +33,6 @@ function preload()
   ouchSound = loadSound('OUCH.wav');
   tictoc = loadSound('ticktoc.wav');
 
-
 }
 
 function setup() {
@@ -40,6 +40,7 @@ function setup() {
   // default lives and score values
   lives = 3;
   score = 0;
+  bestScore = 0;
 
   createCanvas(windowWidth,windowHeight);
   perspective(60 / 180 * PI, width/height, 0.1, 100);
@@ -58,9 +59,14 @@ function setup() {
   ghost.addAnimation("moving", "assets/ghost_walk0005.png", "assets/ghost_walk0008.png");
   ghost.addAnimation("spinning", "assets/ghost_spin0004.png", "assets/ghost_spin0006.png");
 
-  // play starting sound
+  
+
+  setTimeout(function(){ 
+// play starting sound
   nomnomSound.setVolume(0.2);
-  // nomnomSound.play();
+  nomnomSound.play();
+
+   }, 3000);
 
   startGame();
 
@@ -177,7 +183,7 @@ function draw() {
      } else {
          // check if pacman is touching ghost
          var d1 = dist(ghosts[i].xpos, ghosts[i].ypos, ghost.position.x, ghost.position.y);
-         if(d1 < 50)
+         if(d1 < 60)
          {
            ouchSound.play();
 
@@ -205,11 +211,11 @@ function draw() {
      if(pacmanTouched > 0){
        dots[j].ypos = dots[j].ypos - 2;
 
-       setTimeout(
-         function(){
-           dots[j].ypos = 4;
-           pacmanTouched = 0;
-         }, 3500);
+       // setTimeout(
+       //   function(){
+       //     dots[j].ypos = 4;
+       //     pacmanTouched = 0;
+       //   }, 3500);
      }
 
      // check if dot reaches bottom of screen
@@ -224,7 +230,7 @@ function draw() {
 
        //if cim touched dot
        var d2 = dist(dots[j].xpos, dots[j].ypos, ghost.position.x, ghost.position.y);
-       if(d2 < 25)
+       if(d2 < 60)
        {
          // remove dot
          dots.splice(j, 1);
@@ -256,7 +262,7 @@ function draw() {
      } else {
        // check if pacman is touching ghost
        var d3 = dist(pacmans[k].xpos, pacmans[k].ypos, ghost.position.x, ghost.position.y);
-       if(d3 < 25)
+       if(d3 < 60)
        {
          tictoc.play();
          // remove ghost
@@ -278,7 +284,7 @@ function draw() {
     {
       // reset lives and score
       lives = 3;
-      score = 0;
+      //score = 0;
 
 
       // reset all
@@ -297,8 +303,10 @@ function draw() {
     }
 
   } else {
-    startGame();
-    nomnomSound.play();
+    //startGame();
+    //nomnomSound.play();
+
+    youFail();
 
   }
 
@@ -307,6 +315,29 @@ function draw() {
 function startGame(){
   // change gameStarted variable
   gameStarted = true;
+}
+
+function youFail(){
+  // display score
+  fill(255);
+  noStroke();
+  textSize(24);
+  text("Score: " + score, 30, 50);
+
+  if(bestScore <= score){
+    bestScore = score;
+  }
+
+  // display bestScore
+  fill(255);
+  noStroke();
+  textSize(24);
+  text("Best Score: " + bestScore, 30, 90);
+
+  buttonPlay = createButton('Play Again');
+  buttonPlay.position(0, 0);
+  buttonPlay.mousePressed(startGame);
+
 }
 
 function Pacman()
