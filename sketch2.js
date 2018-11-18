@@ -68,6 +68,7 @@ function setup() {
 
    }, 3000);
 
+
   startGame();
 
 }
@@ -315,6 +316,7 @@ function draw() {
 function startGame(){
   // change gameStarted variable
   gameStarted = true;
+  score = 0;
 }
 
 function youFail(){
